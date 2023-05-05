@@ -4,6 +4,7 @@
     "name": "SonarCloud create project",
     "version": "1.0.0",
     "publisher": "hendamm",
+    "public": true,
     "repository": {
         "type": "git",
         "uri": "https://github.com/henryd24/azdevops-sonarcloud-create-project"
