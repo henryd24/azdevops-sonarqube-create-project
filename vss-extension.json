@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "sonarcloud-create-project",
     "name": "SonarCloud create project",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "publisher": "hendamm",
     "public": true,
     "repository": {
