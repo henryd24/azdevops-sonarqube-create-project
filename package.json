@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "cd src && npm install",
-    "build": "cd src && npm run build && cd .. && cp -r images dist",
+    "build": "cd src && npm run build",
     "pack": "tfx extension create --manifest-globs vss-extension.json",
     "packupversion": "tfx extension create --manifest-globs vss-extension.json --rev-version"
   },

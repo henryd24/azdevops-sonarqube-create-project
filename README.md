@@ -4,7 +4,7 @@ An extension to check and create projects in sonarcloud. This extension is desig
 ## Usage
 It is recommended to place the task after the task 'Prepare analysis in SonarCloud' of SonarSource, because the purpose of this task is to check if a project exists in sonarcloud and if it does not exist create it according to our configuration.
 
-![Task View](images/task-view.png)
+![Task View](https://i.imgur.com/6cEiX1l.png)
 
-## Input
-![Inputs](images/input-task.png)
+## Inputs
+![Inputs](https://i.imgur.com/0Jo9ymX.png)
