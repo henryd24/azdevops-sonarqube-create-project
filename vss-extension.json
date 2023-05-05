@@ -1,0 +1,58 @@
+{
+    "manifestVersion": 1,
+    "id": "sonarcloud-create-project",
+    "name": "SonarCloud create project",
+    "version": "1.0.0",
+    "publisher": "hendamm",
+    "repository": {
+        "type": "git",
+        "uri": "https://github.com/henryd24/azdevops-sonarcloud-create-project"
+    },
+    
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services.Cloud"
+        }
+    ],    
+    "description": "Extension to verify the existence of projects, create them and set up quality gates.",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "content": {
+        "details": {
+            "path": "README.md"
+        },
+        "license": {
+            "path": "LICENSE"
+        }
+    },
+    "tags": [
+        "build",
+        "sonar",
+        "sonarcloud"
+    ],
+    "scopes": [
+        "vso.build",
+        "vso.release"
+    ],
+    "icons": {
+        "default": "images/icon.png"        
+    },
+    "files": [
+        {
+            "path": "dist"
+        }
+    ],
+    "contributions": [
+        {
+            "id": "custom-build-release-task",
+            "type": "ms.vss-distributed-task.task",
+            "targets": [
+                "ms.vss-distributed-task.tasks"
+            ],
+            "properties": {
+                "name": "dist"
+            }
+        }
+    ]
+}

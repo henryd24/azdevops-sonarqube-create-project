@@ -1,0 +1,129 @@
+{
+    "id": "eb138da3-8f57-4bd3-8423-21e78d7db984",
+    "name": "sonarcloud-create-project",
+    "friendlyName": "SonarCloud create project",
+    "description": "Extension to check if a project exists in sonar and if not, create it.",
+    "helpMarkDown": "",
+    "category": "Utility",
+    "author": "Henry Mosquera",
+    "version": {
+        "Major": 1,
+        "Minor": 0,
+        "Patch": 0
+    },
+    "visibility": [
+        "Release",
+        "Build"
+    ],
+    "instanceNameFormat": "SonarCloud Create Project",
+    "inputs": [
+        {
+            "name": "SonarCloud",
+            "type": "connectedService:sonarcloud",
+            "label": "SonarCloud Service Connection",
+            "required": true,
+            "helpMarkDown": "Select the SonarCloud endpoint for your project. To create one, click on the Manage link and create a new SonarCloud Service Endpoint, then enter your SonarCloud account token."
+        },
+        {
+            "name": "sonarOrganization",
+            "type": "pickList",
+            "label": "Organization",
+            "required": true,
+            "helpMarkDown": "Select your organization.",
+            "properties": {
+              "EditableOptions": "True"
+            }
+        },
+        {
+            "name": "serviceKey",
+            "type": "string",
+            "label": "Project keyname",
+            "defaultValue": "",
+            "required": true,
+            "helpMarkDown": "Define the key name of the sonar project, e.g.: front-angular."
+        },
+        {
+            "name": "serviceName",
+            "type": "string",
+            "label": "Project name",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "Define the name of the project in sonar, e.g. Front Angular."
+        },
+        {
+            "name": "createProject",
+            "type": "radio",
+            "label": "Create project (if it does not exist)",
+            "defaultValue": "true",
+            "required": true,
+            "helpMarkDown": "Create project (Yes) | Only check existence (No).",
+            "options": {
+                "true": "Yes",
+                "false": "No"
+            }
+        },
+        {
+            "name": "visibility",
+            "type": "radio",
+            "label": "Visibility",
+            "defaultValue": "private",
+            "required": true,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "Project visibility: private or public.",
+            "options": {
+                "private": "Private",
+                "public": "Public"
+            }
+        },
+        {
+            "name": "tags",
+            "type": "string",
+            "label": "Tags",
+            "visibleRule": "createProject = true",
+            "required": false,
+            "helpMarkDown": "Set comma-separated tags e.g.: dev,back,node."
+        },
+        {
+            "name": "long_live_branches",
+            "type": "string",
+            "label": "Long-lived branches (regex)",
+            "visibleRule": "createProject = true",
+            "required": false,
+            "helpMarkDown": "Long-lived branches (regex), e.g.: (master|qa)"
+        },
+        {
+            "name": "sonarQualityGate",
+            "type": "pickList",
+            "label": "Select the quality gate",
+            "visibleRule": "createProject = true",
+            "required": false,
+            "helpMarkDown": "Select the quality gate you want to configure in the project",
+            "properties": {
+              "EditableOptions": "True"
+            }
+        }
+    ],
+    "dataSourceBindings": [
+        {
+          "target": "sonarOrganization",
+          "endpointId": "$(SonarCloud)",
+          "endpointUrl": "{{endpoint.url}}/api/organizations/search?member=true",
+          "resultSelector": "jsonpath:$.organizations[*]",
+          "resultTemplate":
+            "{ \"Value\" : \"{{{key}}}\", \"DisplayValue\" : \"{{{name}}} ({{{key}}})\" }"
+        },
+        {
+          "target": "sonarQualityGate",
+          "endpointId": "$(SonarCloud)",
+          "endpointUrl": "{{endpoint.url}}/api/qualitygates/list?organization=$(sonarOrganization)",
+          "resultSelector": "jsonpath:$.qualitygates[*]",
+          "resultTemplate":
+            "{ \"Value\" : \"{{{id}}}\", \"DisplayValue\" : \"{{{name}}} ({{{id}}})\" }"
+        }
+    ],
+    "execution": {
+        "Node": {
+            "target": "./index.js"
+        }
+    }
+}

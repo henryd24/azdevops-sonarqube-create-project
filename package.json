@@ -1,0 +1,18 @@
+{
+  "name": "sonar-verification-extension-azdevops",
+  "version": "1.0.0",
+  "description": "An extension to check and create projects in sonarcloud. This extension is designed to help with [SonarCloud](https://sonarcloud.io/) by providing a helper task.",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "cd src && npm install",
+    "build": "cd src && npm run build && cd .. && cp -r images dist",
+    "pack": "tfx extension create --manifest-globs vss-extension.json",
+    "packupversion": "tfx extension create --manifest-globs vss-extension.json --rev-version"
+  },
+  "devDependencies": {
+    "tfx-cli": "^0.14.0",
+    "typescript": "^3.5.3"
+  },
+  "author": "",
+  "license": "ISC"
+}
