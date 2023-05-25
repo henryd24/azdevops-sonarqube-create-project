@@ -1,8 +1,8 @@
 import * as tl from "azure-pipelines-task-lib";
-import { Projects } from './Service/projects';
-import { QualityGate } from './Service/quality_gate'
-import { Tags } from "./Service/tags"
-import { Settings } from "./Service/settings"
+import { Projects } from './libs/projects';
+import { QualityGate } from './libs/quality_gate'
+import { Tags } from "./libs/tags"
+import { Settings } from "./libs/settings"
 
 async function run() {
     try {
