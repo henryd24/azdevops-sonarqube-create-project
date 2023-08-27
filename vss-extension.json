@@ -1,13 +1,13 @@
 {
     "manifestVersion": 1,
-    "id": "sonarcloud-create-project",
-    "name": "SonarCloud create project",
+    "id": "sonarqube-create-project",
+    "name": "sonarqube create project",
     "version": "1.0.2",
     "publisher": "hendamm",
     "public": true,
     "repository": {
         "type": "git",
-        "uri": "https://github.com/henryd24/azdevops-sonarcloud-create-project"
+        "uri": "https://github.com/henryd24/azdevops-sonarqube-create-project"
     },
     
     "targets": [
@@ -30,7 +30,7 @@
     "tags": [
         "build",
         "sonar",
-        "sonarcloud"
+        "sonarqube"
     ],
     "scopes": [
         "vso.build",

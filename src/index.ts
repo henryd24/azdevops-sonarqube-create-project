@@ -6,18 +6,17 @@ import { Settings } from "./libs/settings"
 
 async function run() {
     try {
-        const idServiceconnection: string = tl.getInput('SonarCloud', true) ?? '';
-        const sonarToken = tl.getEndpointAuthorizationParameter(idServiceconnection,'apitoken',true);
-        const sonarOrganization: string | undefined = tl.getInput('sonarOrganization', true);
+        const idServiceconnection: string = tl.getInput('Sonarqube', true) ?? '';
+        const sonarToken = tl.getEndpointAuthorizationParameter(idServiceconnection,'apitoken',true) ?? '';
+        const baseURL = tl.getEndpointUrlRequired(idServiceconnection) ?? '';
         const serviceKey: string | undefined = tl.getInput('serviceKey', true);
         const serviceName: string = tl.getInput('serviceName', false) ?? `${serviceKey}`;
         const createProject: string | undefined = tl.getInput('createProject', true);
         const tags: string | undefined = tl.getInput('tags', false);
         const long_live_branches: string | undefined = tl.getInput('long_live_branches', false);
-        const visibility: string | undefined = tl.getInput('visibility', true);
         const sonarQualityGate: string | undefined = tl.getInput('sonarQualityGate', false);
-        let Project = new Projects();
-        await Project.getSonarProject(sonarToken,sonarOrganization,serviceKey);
+        let Project = new Projects(baseURL,sonarToken);
+        await Project.getSonarProject(serviceKey);
 
         if(createProject=="false"){
             if(!Project.Created){
@@ -28,24 +27,24 @@ async function run() {
         if(createProject=="true"){
             if(!Project.Created){
                 console.info(`Creating the ${serviceKey} project`)
-                await Project.createSonarProject(sonarToken,sonarOrganization,serviceKey,serviceName,visibility)
+                await Project.createSonarProject(serviceKey,serviceName)
             }else{
                 console.info(`The creation of ${serviceKey} is omitted.`)
             }
             if(Project.Created){
                 if(tags){
-                    let Tag = new Tags();
-                    await Tag.setTags(sonarToken,sonarOrganization,serviceKey,tags)
+                    let Tag = new Tags(baseURL,sonarToken);
+                    await Tag.setTags(serviceKey,tags)
                 }
         
                 if(sonarQualityGate){
-                    let qualityGate = new QualityGate();
-                    await qualityGate.setQualityGate(sonarToken,sonarOrganization,serviceKey,sonarQualityGate)
+                    let qualityGate = new QualityGate(baseURL,sonarToken);
+                    await qualityGate.setQualityGate(serviceKey,sonarQualityGate)
                 }
 
                 if(long_live_branches){
-                    let settings = new Settings()
-                    await settings.setLongLiveBranches(sonarToken,sonarOrganization,serviceKey,long_live_branches)
+                    let settings = new Settings(baseURL,sonarToken);
+                    await settings.setLongLiveBranches(serviceKey,long_live_branches)
                 }
             }
         }

@@ -2,12 +2,14 @@ import fetch from 'node-fetch';
 
 export class Settings{
     baseURL: string;
-    constructor(){
-        this.baseURL = "https://sonarcloud.io";
+    sonarToken:string;
+    constructor(baseURL:string,sonarToken:string){
+        this.baseURL = baseURL;
+        this.sonarToken = sonarToken;
     }
-    async setLongLiveBranches(sonarToken:string|undefined, sonarOrganization: string|undefined ,serviceName: string|undefined,longlivebranches: string|undefined){
-        const setLongLiveBranches: string = `${this.baseURL}/api/settings/set?organization=${sonarOrganization}&component=${serviceName}&key=sonar.branch.longLivedBranches.regex&value=${longlivebranches}`;
-        const base64_token: string = Buffer.from(sonarToken+':').toString('base64')
+    async setLongLiveBranches(serviceName: string|undefined,longlivebranches: string|undefined){
+        const setLongLiveBranches: string = `${this.baseURL}/api/settings/set?component=${serviceName}&key=sonar.branch.longLivedBranches.regex&value=${longlivebranches}`;
+        const base64_token: string = Buffer.from(this.sonarToken+':').toString('base64')
         await fetch(setLongLiveBranches, {
             method: 'POST',
             headers: {

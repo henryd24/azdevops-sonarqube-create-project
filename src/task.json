@@ -1,7 +1,7 @@
 {
     "id": "eb138da3-8f57-4bd3-8423-21e78d7db984",
-    "name": "sonarcloud-create-project",
-    "friendlyName": "SonarCloud create project",
+    "name": "Sonarqube-create-project",
+    "friendlyName": "Sonarqube create project",
     "description": "Extension to check if a project exists in sonar and if not, create it.",
     "helpMarkDown": "",
     "category": "Utility",
@@ -15,24 +15,14 @@
         "Release",
         "Build"
     ],
-    "instanceNameFormat": "SonarCloud Create Project",
+    "instanceNameFormat": "Sonarqube Create Project",
     "inputs": [
         {
-            "name": "SonarCloud",
-            "type": "connectedService:sonarcloud",
-            "label": "SonarCloud Service Connection",
+            "name": "Sonarqube",
+            "type": "connectedService:sonarqube",
+            "label": "Sonarqube Service Connection",
             "required": true,
-            "helpMarkDown": "Select the SonarCloud endpoint for your project. To create one, click on the Manage link and create a new SonarCloud Service Endpoint, then enter your SonarCloud account token."
-        },
-        {
-            "name": "sonarOrganization",
-            "type": "pickList",
-            "label": "Organization",
-            "required": true,
-            "helpMarkDown": "Select your organization.",
-            "properties": {
-              "EditableOptions": "True"
-            }
+            "helpMarkDown": "Select the Sonarqube endpoint for your project. To create one, click on the Manage link and create a new Sonarqube Service Endpoint, then enter your Sonarqube account token."
         },
         {
             "name": "serviceKey",
@@ -105,20 +95,12 @@
     ],
     "dataSourceBindings": [
         {
-          "target": "sonarOrganization",
-          "endpointId": "$(SonarCloud)",
-          "endpointUrl": "{{endpoint.url}}/api/organizations/search?member=true",
-          "resultSelector": "jsonpath:$.organizations[*]",
-          "resultTemplate":
-            "{ \"Value\" : \"{{{key}}}\", \"DisplayValue\" : \"{{{name}}} ({{{key}}})\" }"
-        },
-        {
           "target": "sonarQualityGate",
-          "endpointId": "$(SonarCloud)",
-          "endpointUrl": "{{endpoint.url}}/api/qualitygates/list?organization=$(sonarOrganization)",
+          "endpointId": "$(Sonarqube)",
+          "endpointUrl": "{{endpoint.url}}/api/qualitygates/list",
           "resultSelector": "jsonpath:$.qualitygates[*]",
           "resultTemplate":
-            "{ \"Value\" : \"{{{id}}}\", \"DisplayValue\" : \"{{{name}}} ({{{id}}})\" }"
+            "{ \"Value\" : \"{{{name}}}\", \"DisplayValue\" : \"{{{name}}}\" }"
         }
     ],
     "execution": {

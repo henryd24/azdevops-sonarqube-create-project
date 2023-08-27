@@ -4,14 +4,16 @@ import fetch from 'node-fetch';
 
 export class Projects{
     baseURL: string;
+    sonarToken: string;
     Created: boolean
-    constructor(){
-        this.baseURL = "https://sonarcloud.io";
+    constructor(baseURL:string, sonarToken:string){
+        this.baseURL = baseURL
+        this.sonarToken = sonarToken
         this.Created = false;
     }
-    async getSonarProject(sonarToken:string|undefined, sonarOrganization: string|undefined ,serviceKey: string|undefined){
-        const getPorjectUrl: string = `${this.baseURL}/api/projects/search?organization=${sonarOrganization}&project=${serviceKey}`;
-        const base64_token: string = Buffer.from(sonarToken+':').toString('base64')
+    async getSonarProject(serviceKey: string|undefined){
+        const getPorjectUrl: string = `${this.baseURL}/api/projects/search?project=${serviceKey}`;
+        const base64_token: string = Buffer.from(this.sonarToken+':').toString('base64')
         await fetch(getPorjectUrl, {
             method: 'GET',
             headers: {
@@ -38,9 +40,9 @@ export class Projects{
         })
     }
 
-    async createSonarProject(sonarToken:string|undefined, sonarOrganization: string|undefined ,serviceKey: string|undefined,serviceName: string|undefined,visibility: string|undefined){
-        const createPorjectUrl: string = `${this.baseURL}/api/projects/create?organization=${sonarOrganization}&project=${serviceKey}&name=${serviceName}&visibility=${visibility}`;
-        const base64_token: string = Buffer.from(sonarToken+':').toString('base64')
+    async createSonarProject(serviceKey: string|undefined,serviceName: string|undefined){
+        const createPorjectUrl: string = `${this.baseURL}/api/projects/create?project=${serviceKey}&name=${serviceName}`;
+        const base64_token: string = Buffer.from(this.sonarToken+':').toString('base64')
         await fetch(createPorjectUrl, {
             method: 'POST',
             headers: {

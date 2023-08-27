@@ -2,12 +2,14 @@ import fetch from 'node-fetch';
 
 export class QualityGate{
     baseURL: string;
-    constructor(){
-        this.baseURL = "https://sonarcloud.io";
+    sonarToken:string;
+    constructor(baseURL:string,sonarToken:string){
+        this.baseURL = baseURL;
+        this.sonarToken = sonarToken;
     }
-    async setQualityGate(sonarToken:string|undefined, sonarOrganization: string|undefined ,serviceName: string|undefined,gateId: string|undefined){
-        const setQualityGate: string = `${this.baseURL}/api/qualitygates/select?organization=${sonarOrganization}&projectKey=${serviceName}&gateId=${gateId}`;
-        const base64_token: string = Buffer.from(sonarToken+':').toString('base64')
+    async setQualityGate(serviceName: string|undefined,gateId: string|undefined){
+        const setQualityGate: string = `${this.baseURL}/api/qualitygates/select?projectKey=${serviceName}&gateId=${gateId}`;
+        const base64_token: string = Buffer.from(this.sonarToken+':').toString('base64')
         await fetch(setQualityGate, {
             method: 'POST',
             headers: {

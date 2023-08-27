@@ -2,12 +2,14 @@ import fetch from 'node-fetch';
 
 export class Tags{
     baseURL: string;
-    constructor(){
-        this.baseURL = "https://sonarcloud.io";
+    sonarToken:string;
+    constructor(baseURL:string,sonarToken:string){
+        this.baseURL = baseURL;
+        this.sonarToken = sonarToken;
     }
-    async setTags(sonarToken:string|undefined, sonarOrganization: string|undefined ,serviceName: string|undefined,tags: string|undefined){
-        const setQualityGate: string = `${this.baseURL}/api/project_tags/set?organization=${sonarOrganization}&project=${serviceName}&tags=${tags}`;
-        const base64_token: string = Buffer.from(sonarToken+':').toString('base64')
+    async setTags(serviceName: string|undefined,tags: string|undefined){
+        const setQualityGate: string = `${this.baseURL}/api/project_tags/set?project=${serviceName}&tags=${tags}`;
+        const base64_token: string = Buffer.from(this.sonarToken+':').toString('base64')
         await fetch(setQualityGate, {
             method: 'POST',
             headers: {
