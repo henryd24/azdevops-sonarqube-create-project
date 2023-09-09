@@ -12,7 +12,7 @@ export class Projects{
         this.Created = false;
     }
     async getSonarProject(serviceKey: string|undefined){
-        const getPorjectUrl: string = `${this.baseURL}/api/projects/search?project=${serviceKey}`;
+        const getPorjectUrl: string = `${this.baseURL}/api/projects/search?projects=${serviceKey}`;
         const base64_token: string = Buffer.from(this.sonarToken+':').toString('base64')
         await fetch(getPorjectUrl, {
             method: 'GET',
@@ -41,7 +41,10 @@ export class Projects{
     }
 
     async createSonarProject(serviceKey: string|undefined,serviceName: string|undefined){
-        const createPorjectUrl: string = `${this.baseURL}/api/projects/create?project=${serviceKey}&name=${serviceName}`;
+        const visibility: string = tl.getInput('visibility', true) ?? 'public';
+        const createPorjectUrl: string = `${this.baseURL}/api/projects/create?project=${serviceKey}` +
+                                        `&name=${serviceName}` +
+                                        `&visibility=${visibility}`;
         const base64_token: string = Buffer.from(this.sonarToken+':').toString('base64')
         await fetch(createPorjectUrl, {
             method: 'POST',
@@ -53,8 +56,8 @@ export class Projects{
         .then(response => response.json())
         .then(result =>{
             if("project" in result && result.project.key == serviceKey){
-                this.Created = true;
                 console.info(`The project ${serviceKey} was successfully created with name ${serviceName}.`);
+                this.Created = true;
             }else{
                 tl.setResult(tl.TaskResult.Failed, `The project could not be created, error message: ${JSON.stringify(result)}`);
             }
@@ -62,5 +65,9 @@ export class Projects{
         .catch(error => {
             tl.setResult(tl.TaskResult.Failed, (error as Error).toString());
         })
+    }
+
+    async setProjectConfig(serviceKey: string|undefined) {
+        
     }
  }

@@ -53,10 +53,46 @@
             }
         },
         {
+            "name": "mainBranch",
+            "type": "string",
+            "label": "Main Branch",
+            "defaultValue": "main",
+            "required": true,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "Select main branch"
+        },
+        {
+            "name": "newCodeDefinitionType",
+            "type": "pickList",
+            "label": "Project New Code Definition Type",
+            "defaultValue": "PREVIOUS_VERSION",
+            "required": true,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "New code definitions",
+            "options": {
+                "PREVIOUS_VERSION": "PREVIOUS VERSION",
+                "NUMBER_OF_DAYS": "NUMBER OF DAYS",
+                "REFERENCE_BRANCH": "REFERENCE BRANCH"
+            }
+        },
+        {
+            "name": "newCodeDefinitionValue",
+            "type": "string",
+            "label": "Project New Code Definition Value",
+            "defaultValue": "PREVIOUS_VERSION",
+            "required": false,
+            "visibleRule": "newCodeDefinitionType = NUMBER_OF_DAYS",
+            "helpMarkDown": "New code definitions",
+            "validation": {
+                "expression": "isInRange(value, 1, 90)",
+                "message": "The value is not in range 1 to 90"
+            }
+        },
+        {
             "name": "visibility",
             "type": "radio",
             "label": "Visibility",
-            "defaultValue": "private",
+            "defaultValue": "public",
             "required": true,
             "visibleRule": "createProject = true",
             "helpMarkDown": "Project visibility: private or public.",
