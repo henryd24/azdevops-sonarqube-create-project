@@ -36,7 +36,7 @@ export class Projects{
             }
         })
         .catch(error => {
-            tl.setResult(tl.TaskResult.Failed, (error as Error).toString());
+            tl.setResult(tl.TaskResult.Failed, (error as Error).toString()+ ' - Check your TOKEN or connectivity');
         })
     }
 

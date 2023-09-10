@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "sonarqube-create-project",
     "name": "sonarqube create project",
-    "version": "1.0.2",
+    "version": "1.0.6",
     "publisher": "hendamm",
     "public": false,
     "repository": {

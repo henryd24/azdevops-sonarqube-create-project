@@ -3,18 +3,21 @@ import { Projects } from './libs/projects';
 import { QualityGate } from './libs/quality_gate'
 import { Tags } from "./libs/tags"
 import { Settings } from "./libs/settings"
-
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 async function run() {
     try {
         const idServiceconnection: string = tl.getInput('Sonarqube', true) ?? '';
-        const sonarToken = tl.getEndpointAuthorizationParameter(idServiceconnection,'apitoken',true) ?? '';
-        const baseURL = tl.getEndpointUrlRequired(idServiceconnection) ?? '';
+        const sonarToken = tl.getEndpointAuthorizationParameter(idServiceconnection,'username',true) ?? '';
+        let baseURL = tl.getEndpointUrlRequired(idServiceconnection) ?? '';
         const serviceKey: string | undefined = tl.getInput('serviceKey', true);
         const serviceName: string = tl.getInput('serviceName', false) ?? `${serviceKey}`;
         const createProject: string | undefined = tl.getInput('createProject', true);
         const tags: string | undefined = tl.getInput('tags', false);
         const long_live_branches: string | undefined = tl.getInput('long_live_branches', false);
         const sonarQualityGate: string | undefined = tl.getInput('sonarQualityGate', false);
+        if (baseURL.endsWith('/')) {
+            baseURL = baseURL.slice(0, -1);
+        }
         let Project = new Projects(baseURL,sonarToken);
         await Project.getSonarProject(serviceKey);
 
