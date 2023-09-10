@@ -8,6 +8,5 @@
     "rootDir": "./",
     "outDir": "../dist",
   },
-  "files": ["task.json","icon.png","package.json"],
   "exclude": ["node_modules"]
 }

@@ -7,8 +7,8 @@ export class QualityGate{
         this.baseURL = baseURL;
         this.sonarToken = sonarToken;
     }
-    async setQualityGate(serviceName: string|undefined,gateId: string|undefined){
-        const setQualityGate: string = `${this.baseURL}/api/qualitygates/select?projectKey=${serviceName}&gateId=${gateId}`;
+    async setQualityGate(serviceName: string|undefined,gateName: string|undefined){
+        const setQualityGate: string = `${this.baseURL}/api/qualitygates/select?projectKey=${serviceName}&gateName=${gateName}`;
         const base64_token: string = Buffer.from(this.sonarToken+':').toString('base64')
         await fetch(setQualityGate, {
             method: 'POST',
@@ -20,7 +20,7 @@ export class QualityGate{
         .then(response => response.status)
         .then(statusCode =>{
             if(statusCode == 204){
-                console.info(`The quality gate with id: ${gateId} was configured correctly.`)
+                console.info(`The quality gate with name: ${gateName} was configured correctly.`)
             }else{
                 console.warn(`Failed to configure qualitygate, error code: ${statusCode}`)
             }

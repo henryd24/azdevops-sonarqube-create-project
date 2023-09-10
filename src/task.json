@@ -1,15 +1,15 @@
 {
-    "id": "eb138da3-8f57-4bd3-8423-21e78d7db984",
-    "name": "Sonarqube-create-project",
+    "id": "bbd5dff8-7eb5-421a-bdc1-483d9b459d27",
+    "name": "sonarqube-create-project",
     "friendlyName": "Sonarqube create project",
-    "description": "Extension to check if a project exists in sonar and if not, create it.",
+    "description": "Extension to check if a project exists in sonarqube and if not, create it.",
     "helpMarkDown": "",
     "category": "Utility",
     "author": "Henry Mosquera",
     "version": {
-        "Major": 1,
-        "Minor": 0,
-        "Patch": 1
+        "Major": 0,
+        "Minor": 5,
+        "Patch": 0
     },
     "visibility": [
         "Release",
@@ -53,10 +53,43 @@
             }
         },
         {
+            "name": "mainBranch",
+            "type": "string",
+            "label": "Main Branch",
+            "defaultValue": "main",
+            "required": false,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "Select main branch"
+        },
+        {
+            "name": "newCodeDefinitionType",
+            "type": "pickList",
+            "label": "Project New Code Definition Type",
+            "required": false,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "New code definitions",
+            "options": {
+                "PREVIOUS_VERSION": "PREVIOUS VERSION",
+                "NUMBER_OF_DAYS": "NUMBER OF DAYS"
+            }
+        },
+        {
+            "name": "newCodeDefinitionValue",
+            "type": "string",
+            "label": "Project New Code Definition Value",
+            "required": false,
+            "visibleRule": "newCodeDefinitionType = NUMBER_OF_DAYS",
+            "helpMarkDown": "New code definitions",
+            "validation": {
+                "expression": "isInRange(value, 1, 90)",
+                "message": "The value is not in range 1 to 90"
+            }
+        },
+        {
             "name": "visibility",
             "type": "radio",
             "label": "Visibility",
-            "defaultValue": "private",
+            "defaultValue": "public",
             "required": true,
             "visibleRule": "createProject = true",
             "helpMarkDown": "Project visibility: private or public.",
