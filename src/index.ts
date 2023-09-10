@@ -30,6 +30,7 @@ async function run() {
                 await Project.createSonarProject(serviceKey,serviceName)
             }else{
                 console.info(`The creation of ${serviceKey} is omitted.`)
+                Project.setSonarProjectConfig(serviceKey)
             }
             if(Project.Created){
                 if(tags){

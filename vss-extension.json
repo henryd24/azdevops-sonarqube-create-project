@@ -4,7 +4,7 @@
     "name": "sonarqube create project",
     "version": "1.0.2",
     "publisher": "hendamm",
-    "public": true,
+    "public": false,
     "repository": {
         "type": "git",
         "uri": "https://github.com/henryd24/azdevops-sonarqube-create-project"
