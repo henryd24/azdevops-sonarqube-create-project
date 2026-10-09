@@ -10,13 +10,13 @@
   "author": "Henry Mosquera",
   "license": "ISC",
   "dependencies": {
-    "@types/node": "^18.15.5",
-    "azure-pipelines-task-lib": "^4.3.1",
-    "node-fetch": "^2.6.1"
+    "@types/node": "^26.5.0",
+    "azure-pipelines-task-lib": "^5.279.0",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@types/mocha": "^10.0.10",
-    "@types/node": "^18.15.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^26.5.0",
     "@types/node-fetch": "^2.6.3",
     "@types/q": "^1.5.8",
     "sync-request": "^6.1.0",
