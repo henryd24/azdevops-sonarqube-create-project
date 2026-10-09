@@ -1,0 +1,17 @@
+version: 2
+updates:
+  # The cooldown skips versions published less than N days ago, which is the window
+  # in which most compromised npm packages are detected and removed.
+  - package-ecosystem: npm
+    directory: /src
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    groups:
+      dev-dependencies:
+        dependency-type: development
+      production-dependencies:
+        dependency-type: production
+    open-pull-requests-limit: 5
