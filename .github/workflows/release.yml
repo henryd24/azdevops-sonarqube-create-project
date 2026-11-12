@@ -79,6 +79,8 @@ jobs:
             exit 1
           fi
           gh api -X POST "repos/$GITHUB_REPOSITORY/git/refs" -f ref="refs/heads/$branch" -f sha="$base" >/dev/null
+          # If the commit or the pull request fails, remove the branch so the run can be retried.
+          trap 'status=$?; if [ "$status" -ne 0 ]; then gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$branch" >/dev/null 2>&1 || true; fi' EXIT
 
           # createCommitOnBranch makes a commit that GitHub signs itself.
           jq -n \
@@ -152,7 +154,7 @@ jobs:
     needs: release
     if: needs.release.outputs.publish == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     permissions:
       contents: read
       id-token: write # request the OIDC token exchanged for a Marketplace credential
@@ -178,5 +180,31 @@ jobs:
       - name: Get Marketplace credential (OIDC)
         run: node .github/scripts/marketplace-token.mjs "$(node -p "require('./config/release.json').publisher")"
 
+      # tfx gives up waiting for the Marketplace validation after a few minutes and exits with an
+      # error even though the upload succeeded, so publish without waiting and check it below.
       - name: Publish to Marketplace
-        run: npx --no-install tfx extension publish --vsix out/*.vsix --auth-type pat --token "$MARKETPLACE_TOKEN" --no-prompt
+        run: npx --no-install tfx extension publish --vsix out/*.vsix --auth-type pat --token "$MARKETPLACE_TOKEN" --no-prompt --no-wait-validation
+
+      # Fails only if the Marketplace rejects the package. A validation that is still pending after
+      # 10 minutes is reported as a warning: the version is already uploaded and must not be re-run.
+      # The OIDC credential lasts 15 minutes, so the wait stays below that.
+      - name: Wait for Marketplace validation
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          publisher=$(node -p "require('./config/release.json').publisher")
+          extension=$(node -p "require('./config/release.json').id")
+          for attempt in $(seq 1 40); do
+            if result=$(npx --no-install tfx extension isvalid --publisher "$publisher" --extension-id "$extension" --version "$VERSION" --service-url https://marketplace.visualstudio.com/ --auth-type pat --token "$MARKETPLACE_TOKEN" --no-prompt --json 2>/dev/null); then
+              status=$(printf '%s' "$result" | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{const r=JSON.parse(d);console.log(r.status+(r.message?": "+r.message:""))}catch{console.log("unknown")}})')
+            else
+              status=unknown
+            fi
+            echo "Attempt $attempt: $status"
+            case "$status" in
+              success) echo "$publisher.$extension $VERSION is valid and available."; exit 0 ;;
+              pending|unknown) sleep 15 ;;
+              *) echo "::error::Marketplace validation failed for $publisher.$extension $VERSION ($status)"; exit 1 ;;
+            esac
+          done
+          echo "::warning::Marketplace validation of $publisher.$extension $VERSION is still pending after 10 minutes. The version is uploaded; check it in the publisher portal."
