@@ -8,7 +8,8 @@
     "coverage": "jest --coverage",
     "build": "tsc -p tsconfig.build.json",
     "configure": "cp -r task.json icon.png ../dist/task",
-    "package": "ncc build index.ts -o ../dist/task && npm run configure"
+    "package": "npm run build && ncc build dist/index.js -o ../dist/task && npm run configure",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "keywords": [],
   "author": "Henry Mosquera",
@@ -18,13 +19,17 @@
     "undici": "^8.11.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "@babel/preset-typescript": "^7.29.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.6.6",
     "@types/q": "^1.5.8",
     "@vercel/ncc": "^0.45.0",
+    "babel-jest": "^30.5.2",
+    "jest": "^30.5.2",
     "jest-fetch-mock": "^4.2.0",
-    "ts-jest": "^29.4.15",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "description": ""
 }

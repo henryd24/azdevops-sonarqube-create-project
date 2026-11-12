@@ -157,6 +157,13 @@ docker run -d --name sonarqube -p 9000:9000 sonarqube:community
 SONAR_URL=http://localhost:9000 node scripts/e2e/e2e.js
 ```
 
+## 📦 Releases
+
+1. Run **Actions → Release → Run workflow** on the default branch and pick `patch`, `minor` or `major`. The workflow bumps the version in `config/release.json` and `src/task.json`, runs typecheck, tests and packaging, and opens a `chore(release): vX.Y.Z` pull request.
+2. Merging it creates the `vX.Y.Z` tag and a GitHub Release with the `.vsix` attached, and then publishes that same `.vsix` to the Visual Studio Marketplace as a private extension (`public: false`).
+
+Marketplace publishing uses [Trusted Publishing](https://learn.microsoft.com/azure/devops/extend/publish/overview#publish-with-oidc-trusted-publishing) (OIDC), so no PAT is stored. It requires a Trusted Publishing policy on the `hendamm` publisher pointing to this repository and the `release.yml` workflow (no environment), and *Settings → Actions → General → Allow GitHub Actions to create and approve pull requests*.
+
 ## ⚠️ Disclaimer
 
 This extension is provided "as is" under the Apache 2.0 license, without warranty or support of any kind.
