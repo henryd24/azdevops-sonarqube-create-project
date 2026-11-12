@@ -1,36 +1,58 @@
 {
     "id": "bbd5dff8-7eb5-421a-bdc1-483d9b459d27",
     "name": "sonarqube-create-project",
-    "friendlyName": "Sonarqube create project",
-    "description": "Extension to check if a project exists in sonarqube and if not, create it.",
-    "helpMarkDown": "",
+    "friendlyName": "SonarQube create project",
+    "description": "Checks if a project exists in SonarQube Server, creates it if needed and applies its configuration before the analysis.",
+    "helpMarkDown": "[Documentation](https://github.com/henryd24/azdevops-sonarqube-create-project#readme)",
     "category": "Utility",
     "author": "Henry Mosquera",
     "version": {
-        "Major": 0,
-        "Minor": 5,
-        "Patch": 0
+        "Major": 1,
+        "Minor": 0,
+        "Patch": 7
     },
     "visibility": [
         "Release",
         "Build"
     ],
-    "instanceNameFormat": "Sonarqube Create Project",
+    "instanceNameFormat": "SonarQube Create Project",
+    "groups": [
+        {
+            "name": "newCodeDefinitionGroup",
+            "displayName": "Code Definition Options",
+            "isExpanded": false
+        },
+        {
+            "name": "advancedGroup",
+            "displayName": "Advanced Configuration",
+            "isExpanded": false
+        },
+        {
+            "name": "connectionGroup",
+            "displayName": "Connection Options",
+            "isExpanded": false
+        },
+        {
+            "name": "executionGroup",
+            "displayName": "Execution Options",
+            "isExpanded": false
+        }
+    ],
     "inputs": [
         {
             "name": "Sonarqube",
             "type": "connectedService:sonarqube",
-            "label": "Sonarqube Service Connection",
+            "label": "SonarQube Service Connection",
             "required": true,
-            "helpMarkDown": "Select the Sonarqube endpoint for your project. To create one, click on the Manage link and create a new Sonarqube Service Endpoint, then enter your Sonarqube account token."
+            "helpMarkDown": "Select the SonarQube Server endpoint. To create one, click on the Manage link and create a new SonarQube service connection with the server URL and a token."
         },
         {
             "name": "serviceKey",
             "type": "string",
             "label": "Project keyname",
             "defaultValue": "",
-            "required": true,
-            "helpMarkDown": "Define the key name of the sonar project, e.g.: front-angular."
+            "required": false,
+            "helpMarkDown": "Define the key name of the sonar project, e.g.: front-angular. If empty, it is derived from the repository name (Build.Repository.Name)."
         },
         {
             "name": "serviceName",
@@ -55,48 +77,33 @@
         {
             "name": "mainBranch",
             "type": "string",
-            "label": "Main Branch",
-            "defaultValue": "main",
+            "label": "Main Branch Name",
+            "defaultValue": "",
             "required": false,
             "visibleRule": "createProject = true",
-            "helpMarkDown": "Select main branch"
-        },
-        {
-            "name": "newCodeDefinitionType",
-            "type": "pickList",
-            "label": "Project New Code Definition Type",
-            "required": false,
-            "visibleRule": "createProject = true",
-            "helpMarkDown": "New code definitions",
-            "options": {
-                "PREVIOUS_VERSION": "PREVIOUS VERSION",
-                "NUMBER_OF_DAYS": "NUMBER OF DAYS"
-            }
-        },
-        {
-            "name": "newCodeDefinitionValue",
-            "type": "string",
-            "label": "Project New Code Definition Value",
-            "required": false,
-            "visibleRule": "newCodeDefinitionType = NUMBER_OF_DAYS",
-            "helpMarkDown": "New code definitions",
-            "validation": {
-                "expression": "isInRange(value, 1, 90)",
-                "message": "The value is not in range 1 to 90"
-            }
+            "helpMarkDown": "Main branch name, e.g. main or trunk. On creation it names the main branch; on an existing project the main branch switches to that branch if it was already analyzed (SonarQube 10.2+) or is renamed otherwise. (Optional)"
         },
         {
             "name": "visibility",
             "type": "radio",
             "label": "Visibility",
-            "defaultValue": "public",
+            "defaultValue": "private",
             "required": true,
             "visibleRule": "createProject = true",
-            "helpMarkDown": "Project visibility: private or public.",
+            "helpMarkDown": "Project visibility used when the project is created: private or public.",
             "options": {
                 "private": "Private",
                 "public": "Public"
             }
+        },
+        {
+            "name": "enforceVisibility",
+            "type": "boolean",
+            "label": "Enforce visibility on existing projects",
+            "defaultValue": "false",
+            "required": false,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "When checked, the visibility of an already existing project is updated to match the selected one. By default visibility is only applied when the project is created."
         },
         {
             "name": "tags",
@@ -109,10 +116,10 @@
         {
             "name": "long_live_branches",
             "type": "string",
-            "label": "Long-lived branches (regex)",
+            "label": "Branches to keep when inactive (regex)",
             "visibleRule": "createProject = true",
             "required": false,
-            "helpMarkDown": "Long-lived branches (regex), e.g.: (master|qa)"
+            "helpMarkDown": "Comma-separated regular expressions of branches that are never deleted when inactive (setting sonar.dbcleaner.branchesToKeepWhenInactive), e.g.: (main|release/.*). Requires an edition with branch analysis. (Optional)"
         },
         {
             "name": "sonarQualityGate",
@@ -120,27 +127,183 @@
             "label": "Select the quality gate",
             "visibleRule": "createProject = true",
             "required": false,
-            "helpMarkDown": "Select the quality gate you want to configure in the project",
+            "helpMarkDown": "Name of the quality gate to associate with the project. (Optional)",
             "properties": {
-              "EditableOptions": "True"
+                "EditableOptions": "True"
             }
+        },
+        {
+            "name": "newCodeDefinitionType",
+            "groupName": "newCodeDefinitionGroup",
+            "type": "pickList",
+            "label": "New Code Definition Type",
+            "defaultValue": "",
+            "required": false,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "Leave empty to keep the current new code definition of the project. (Optional)",
+            "options": {
+                "PREVIOUS_VERSION": "Previous version",
+                "NUMBER_OF_DAYS": "Number of days",
+                "REFERENCE_BRANCH": "Reference branch"
+            }
+        },
+        {
+            "name": "newCodeDefinitionValue",
+            "groupName": "newCodeDefinitionGroup",
+            "type": "string",
+            "label": "New Code Definition Value",
+            "defaultValue": "",
+            "required": false,
+            "visibleRule": "newCodeDefinitionType = NUMBER_OF_DAYS || newCodeDefinitionType = REFERENCE_BRANCH",
+            "helpMarkDown": "Number of days (1 to 90) for NUMBER_OF_DAYS, or the branch name for REFERENCE_BRANCH (empty = main branch)."
+        },
+        {
+            "name": "additionalSettings",
+            "groupName": "advancedGroup",
+            "type": "multiLine",
+            "label": "Additional settings",
+            "defaultValue": "",
+            "required": false,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "One `key=value` per line, e.g. `sonar.exclusions=**/test/**,**/*.spec.ts`. Multi-value settings accept comma-separated values. Lines starting with # are ignored.",
+            "properties": {
+                "resizable": "true",
+                "rows": "4"
+            }
+        },
+        {
+            "name": "qualityProfiles",
+            "groupName": "advancedGroup",
+            "type": "multiLine",
+            "label": "Quality profiles",
+            "defaultValue": "",
+            "required": false,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "One `language=Quality profile name` per line, e.g. `ts=Company way`. Language keys: js, ts, java, cs, py, go, kotlin, php, etc.",
+            "properties": {
+                "resizable": "true",
+                "rows": "3"
+            }
+        },
+        {
+            "name": "permissionTemplate",
+            "groupName": "advancedGroup",
+            "type": "pickList",
+            "label": "Permission template",
+            "defaultValue": "",
+            "required": false,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "Permission template applied only when the project is created by this task.",
+            "properties": {
+                "EditableOptions": "True"
+            }
+        },
+        {
+            "name": "groupPermissions",
+            "groupName": "advancedGroup",
+            "type": "multiLine",
+            "label": "Group permissions",
+            "defaultValue": "",
+            "required": false,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "One `group=permission1,permission2` per line. Permissions: admin, codeviewer, issueadmin, securityhotspotadmin, scan, user.",
+            "properties": {
+                "resizable": "true",
+                "rows": "3"
+            }
+        },
+        {
+            "name": "userPermissions",
+            "groupName": "advancedGroup",
+            "type": "multiLine",
+            "label": "User permissions",
+            "defaultValue": "",
+            "required": false,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "One `login=permission1,permission2` per line. Permissions: admin, codeviewer, issueadmin, securityhotspotadmin, scan, user.",
+            "properties": {
+                "resizable": "true",
+                "rows": "3"
+            }
+        },
+        {
+            "name": "caCertificate",
+            "groupName": "connectionGroup",
+            "type": "filePath",
+            "label": "CA certificate",
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "PEM file with the certificate authority (or chain) that signed the SonarQube server certificate. Use it for servers with internal or self-signed certificates. (Optional)"
+        },
+        {
+            "name": "allowInsecureSsl",
+            "groupName": "connectionGroup",
+            "type": "boolean",
+            "label": "Allow insecure SSL",
+            "defaultValue": "false",
+            "required": false,
+            "helpMarkDown": "Skips the validation of the server certificate, only for the requests of this task. Use it only as a last resort; prefer 'CA certificate'."
+        },
+        {
+            "name": "dryRun",
+            "groupName": "executionGroup",
+            "type": "boolean",
+            "label": "Dry run",
+            "defaultValue": "false",
+            "required": false,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "Only log the changes that would be applied, without creating or modifying anything."
+        },
+        {
+            "name": "failOnConfigError",
+            "groupName": "executionGroup",
+            "type": "boolean",
+            "label": "Fail on configuration errors",
+            "defaultValue": "false",
+            "required": false,
+            "visibleRule": "createProject = true",
+            "helpMarkDown": "When checked, the task fails if any configuration step fails. Otherwise it finishes as 'Succeeded with issues'."
         }
     ],
     "dataSourceBindings": [
         {
-          "target": "sonarQualityGate",
-          "endpointId": "$(Sonarqube)",
-          "endpointUrl": "{{endpoint.url}}/api/qualitygates/list",
-          "resultSelector": "jsonpath:$.qualitygates[*]",
-          "resultTemplate":
-            "{ \"Value\" : \"{{{name}}}\", \"DisplayValue\" : \"{{{name}}}\" }"
+            "target": "sonarQualityGate",
+            "endpointId": "$(Sonarqube)",
+            "endpointUrl": "{{endpoint.url}}/api/qualitygates/list",
+            "resultSelector": "jsonpath:$.qualitygates[*]",
+            "resultTemplate": "{ \"Value\" : \"{{{name}}}\", \"DisplayValue\" : \"{{{name}}}\" }"
+        },
+        {
+            "target": "permissionTemplate",
+            "endpointId": "$(Sonarqube)",
+            "endpointUrl": "{{endpoint.url}}/api/permissions/search_templates",
+            "resultSelector": "jsonpath:$.permissionTemplates[*]",
+            "resultTemplate": "{ \"Value\" : \"{{{name}}}\", \"DisplayValue\" : \"{{{name}}}\" }"
+        }
+    ],
+    "outputVariables": [
+        {
+            "name": "SonarProjectKey",
+            "description": "Key of the SonarQube project."
+        },
+        {
+            "name": "SonarProjectUrl",
+            "description": "URL of the project overview in SonarQube."
+        },
+        {
+            "name": "SonarProjectExists",
+            "description": "'true' if the project existed before the task ran."
+        },
+        {
+            "name": "SonarProjectCreated",
+            "description": "'true' if the project was created by this task."
         }
     ],
     "execution": {
-        "Node": {
+        "Node20_1": {
             "target": "./index.js"
         },
-        "Node20_1": {
+        "Node24": {
             "target": "./index.js"
         }
     }

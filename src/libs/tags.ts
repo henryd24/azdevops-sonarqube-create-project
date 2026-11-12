@@ -1,32 +1,28 @@
-import fetch from 'node-fetch';
+import { StepContext } from "./step";
 
-export class Tags{
-    baseURL: string;
-    sonarToken:string;
-    constructor(baseURL:string,sonarToken:string){
-        this.baseURL = baseURL;
-        this.sonarToken = sonarToken;
+async function currentTags(ctx: StepContext): Promise<string[] | undefined> {
+    try {
+        const result = await ctx.client.get<{ component?: { tags?: string[] } }>("/api/components/show", {
+            component: ctx.projectKey
+        });
+        return result.component?.tags;
+    } catch {
+        // If the current tags cannot be read, fall back to always setting them.
+        return undefined;
     }
-    async setTags(serviceName: string|undefined,tags: string|undefined){
-        const setQualityGate: string = `${this.baseURL}/api/project_tags/set?project=${serviceName}&tags=${tags}`;
-        const base64_token: string = Buffer.from(this.sonarToken+':').toString('base64')
-        await fetch(setQualityGate, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Basic ' + base64_token
-            }
+}
+
+function sameTags(a: string[], b: string[]): boolean {
+    return a.length === b.length && [...a].sort().join(",") === [...b].sort().join(",");
+}
+
+export async function ensureTags(ctx: StepContext, desired: string[]): Promise<void> {
+    const current = await currentTags(ctx);
+    if (current && sameTags(current, desired)) return;
+    await ctx.apply(`Tags set to: ${desired.join(", ")}`, () =>
+        ctx.client.post("/api/project_tags/set", {
+            project: ctx.projectKey,
+            tags: desired.join(",")
         })
-        .then(response => response.status)
-        .then(statusCode =>{
-            if(statusCode == 204){
-                console.info(`Tags: ${tags} were set correctly`)
-            }else{
-                console.warn(`Could not configure tags, error code: ${statusCode}`)
-            }
-        })
-        .catch(error => {
-            console.error(error);
-        })
-    }
+    );
 }

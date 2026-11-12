@@ -1,17 +1,20 @@
 {
-  "name": "sonar-verification-extension-azdevops",
+  "name": "sonarqube-create-project-extension",
   "version": "1.0.0",
-  "description": "An extension to check and create projects in sonarcloud. This extension is designed to help with [SonarCloud](https://sonarcloud.io/) by providing a helper task.",
+  "description": "Azure DevOps extension that checks and creates projects in SonarQube Server and applies their configuration before the analysis.",
   "main": "index.js",
   "scripts": {
-    "postinstall": "cd src && npm install",
-    "build": "cd src && npm run build && cd ..",
-    "pack": "npm run build && tfx extension create --manifest-globs vss-extension.json",
-    "packupversion": "npm run build && tfx extension create --manifest-globs vss-extension.json --rev-version"
+    "postinstall": "npm ci --prefix src",
+    "build": "cd src && npm run package",
+    "clean": "rm -rf dist",
+    "pack": "npm run clean && npm run build && tfx extension create --manifest-globs vss-extension.json --overrides-file config/release.json",
+    "packupversion": "npm run clean && npm run build && tfx extension create --manifest-globs vss-extension.json --rev-version --overrides-file config/release.json",
+    "pack:dev": "npm run clean && npm run build && tfx extension create --manifest-globs vss-extension.json --overrides-file config/dev.json",
+    "packupversion:dev": "npm run clean && npm run build && tfx extension create --manifest-globs vss-extension.json --rev-version --overrides-file config/dev.json"
   },
   "devDependencies": {
-    "tfx-cli": "^0.14.0",
-    "typescript": "^3.5.3"
+    "tfx-cli": "^0.24.2",
+    "typescript": "^7.0.2"
   },
   "author": "",
   "license": "ISC"

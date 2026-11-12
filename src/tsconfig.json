@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
+    "types": ["jest"],
     "moduleResolution": "Node",
     "esModuleInterop": true,
-    "target": "ES6",
+    "ignoreDeprecations": "6.0",
+    "target": "ES2022",
     "removeComments": true,
     "rootDir": "./",
-    "outDir": "../dist",
+    "outDir": "../dist"
   },
   "exclude": ["node_modules"]
 }
