@@ -1,28 +1,20 @@
 version: 2
 updates:
-  # Keeps the SHA-pinned actions up to date.
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
-    cooldown:
-      default-days: 7
-    groups:
-      actions:
-        patterns: ["*"]
-
-  # Dependencies bundled in the extension and dev tooling.
-  # The cooldown skips versions published less than N days ago, which is the window
-  # in which most compromised packages are detected and removed from npm.
+  # The cooldown skips versions published less than N days ago, which is the window in which most
+  # compromised npm packages are detected and removed (security updates ignore it).
+  #
+  # One entry covers the packaging tools of the root and every task package, so each group spans the
+  # whole repository: at most one pull request for security fixes and one for minor/patch updates.
+  # Major updates arrive as separate pull requests so a breaking major cannot block the rest.
   - package-ecosystem: npm
-    directory: /src
+    directories:
+      - /
+      - /src
     schedule:
       interval: weekly
     cooldown:
       default-days: 7
       semver-major-days: 30
-    # Groups are per directory: one pull request for security fixes and one for minor/patch updates.
-    # Major updates arrive as separate pull requests so a breaking major cannot block the rest.
     groups:
       security:
         applies-to: security-updates
@@ -33,25 +25,20 @@ updates:
         update-types: ["minor", "patch"]
     open-pull-requests-limit: 5
     ignore:
-      # ts-jest declares peer typescript <7; TypeScript 7 breaks npm ci until it supports it.
-      - dependency-name: typescript
+      # Babel 8 is not supported yet by Jest's own preset (babel-preset-jest pulls Babel 7 plugins with a
+      # peer on @babel/core ^7). Remove this once Jest supports Babel 8.
+      - dependency-name: "@babel/*"
         update-types: ["version-update:semver-major"]
 
-  # Packaging tools in the root package.json (tfx-cli). They are not shipped in the .vsix,
-  # but their lockfile is scanned, so keep it up to date. Same grouping as the task dependencies.
-  - package-ecosystem: npm
-    directory: /
+  # Keeps the SHA-pinned actions of the workflows up to date in a single pull request.
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/*
     schedule:
       interval: weekly
     cooldown:
       default-days: 7
-      semver-major-days: 30
     groups:
-      security:
-        applies-to: security-updates
+      actions:
         patterns: ["*"]
-      all-dependencies:
-        applies-to: version-updates
-        patterns: ["*"]
-        update-types: ["minor", "patch"]
-    open-pull-requests-limit: 5

@@ -10,11 +10,14 @@
     "pack": "npm run clean && npm run build && tfx extension create --manifest-globs vss-extension.json --overrides-file config/release.json",
     "packupversion": "npm run clean && npm run build && tfx extension create --manifest-globs vss-extension.json --rev-version --overrides-file config/release.json",
     "pack:dev": "npm run clean && npm run build && tfx extension create --manifest-globs vss-extension.json --overrides-file config/dev.json",
-    "packupversion:dev": "npm run clean && npm run build && tfx extension create --manifest-globs vss-extension.json --rev-version --overrides-file config/dev.json"
+    "packupversion:dev": "npm run clean && npm run build && tfx extension create --manifest-globs vss-extension.json --rev-version --overrides-file config/dev.json",
+    "typecheck": "npm run typecheck --prefix src",
+    "test": "npm test --prefix src && node scripts/check-workflows.js",
+    "check:workflows": "node scripts/check-workflows.js"
   },
   "devDependencies": {
     "tfx-cli": "^0.24.2",
-    "typescript": "^7.0.2"
+    "js-yaml": "^5.5.0"
   },
   "author": "",
   "license": "ISC"
