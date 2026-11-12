@@ -18,3 +18,11 @@ steps to reproduce and the potential impact.
 
 This extension works with SonarQube tokens. Never paste a real token in an issue or log.
 If you believe a token was leaked, revoke it in SonarQube immediately.
+
+## How the project protects its supply chain
+
+- CI runs on `pull_request` only (never `pull_request_target`), with a read-only token and no secrets.
+- Every action is pinned to a full commit SHA, and `scripts/check-workflows.js` enforces these rules in CI.
+- Dependencies are installed from the lockfile with `--ignore-scripts`, and their registry signatures are verified.
+- Dependabot waits 7 days (30 for majors) before proposing a new version.
+- CodeQL analyzes the code on every pull request and weekly.

@@ -1,5 +1,7 @@
 {
   "extends": "./tsconfig.json",
-  "include": [ "./**/*","./task.json","./icon.png","./package.json"],
-  "exclude": ["test", "**/*spec.ts"]
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["index.ts", "libs/**/*"]
 }
