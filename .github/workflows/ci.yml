@@ -1,0 +1,104 @@
+name: CI
+
+# Security notes:
+# - Uses `pull_request` (never `pull_request_target`): PRs from forks run with a
+#   read-only token and without access to repository secrets.
+# - This workflow must not use secrets. Publishing the extension belongs in a
+#   separate workflow that only runs on protected branches/tags.
+# - Third-party actions are pinned to a full commit SHA (a tag can be moved).
+# - Dependencies are installed with --ignore-scripts so no package can run
+#   install hooks (the vector used by npm worms such as Shai-Hulud).
+
+on:
+  push:
+    branches: [main, trunk]
+  pull_request:
+    branches: [main, trunk]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: src
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 20
+
+      - name: Install dependencies (lockfile only, no install scripts)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Verify registry signatures of installed packages
+        run: npm audit signatures
+
+      # Blocks on critical advisories only. GHSA-vfj7-8cjw-p6xm (braces, high, stack
+      # exhaustion) has no patched release yet and arrives via azure-pipelines-task-lib
+      # -> shelljs -> fast-glob -> micromatch; it only processes glob patterns controlled
+      # by the pipeline author. Raise back to `high` once braces is fixed.
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=critical
+
+      - name: Typecheck
+        run: npx --no-install tsc --noEmit -p tsconfig.json
+
+      - name: Test
+        run: npm test -- --coverage
+
+      - name: Build
+        run: npm run package
+
+  # Runs the bundled task against a disposable SonarQube Community Build and verifies the result
+  # through the Web API. No secrets: the server only exists for this job.
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      sonarqube:
+        image: sonarqube:community
+        ports:
+          - 9000:9000
+        env:
+          SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 20
+
+      - name: Install dependencies (lockfile only, no install scripts)
+        working-directory: src
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Build
+        working-directory: src
+        run: npm run package
+
+      - name: Wait for SonarQube
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:9000/api/system/status | grep -q '"status":"UP"'; then exit 0; fi
+            sleep 5
+          done
+          echo "SonarQube did not start in time" >&2
+          exit 1
+
+      - name: End-to-end test
+        env:
+          SONAR_URL: http://localhost:9000
+        run: node scripts/e2e/e2e.js
