@@ -25,6 +25,7 @@ on:
       - "images/**"
       - "LICENSE"
       - ".gitignore"
+  # Manual run, e.g. to validate the default branch without a new commit.
   workflow_dispatch:
 
 permissions:
