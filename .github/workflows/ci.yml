@@ -14,6 +14,8 @@ on:
     branches: [main, trunk]
   pull_request:
     branches: [main, trunk]
+  # Manual run, e.g. to validate the default branch without a new commit.
+  workflow_dispatch:
 
 permissions:
   contents: read
