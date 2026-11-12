@@ -1,7 +1,19 @@
 version: 2
 updates:
+  # Keeps the SHA-pinned actions up to date.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # Dependencies bundled in the extension and dev tooling.
   # The cooldown skips versions published less than N days ago, which is the window
-  # in which most compromised npm packages are detected and removed.
+  # in which most compromised packages are detected and removed from npm.
   - package-ecosystem: npm
     directory: /src
     schedule:
@@ -9,9 +21,37 @@ updates:
     cooldown:
       default-days: 7
       semver-major-days: 30
+    # Groups are per directory: one pull request for security fixes and one for minor/patch updates.
+    # Major updates arrive as separate pull requests so a breaking major cannot block the rest.
     groups:
-      dev-dependencies:
-        dependency-type: development
-      production-dependencies:
-        dependency-type: production
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+      all-dependencies:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    open-pull-requests-limit: 5
+    ignore:
+      # ts-jest declares peer typescript <7; TypeScript 7 breaks npm ci until it supports it.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+
+  # Packaging tools in the root package.json (tfx-cli). They are not shipped in the .vsix,
+  # but their lockfile is scanned, so keep it up to date. Same grouping as the task dependencies.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+    groups:
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+      all-dependencies:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
     open-pull-requests-limit: 5

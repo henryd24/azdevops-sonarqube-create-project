@@ -2,4 +2,6 @@
 **/.DS_Store
 dist
 node_modules
-hendamm*
+bun.lockb
+**/.taskkey
+.env

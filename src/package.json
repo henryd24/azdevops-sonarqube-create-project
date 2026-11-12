@@ -1,26 +1,30 @@
 {
-  "name": "sonarcloud-create-project",
+  "name": "sonarqube-create-project",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -p tsconfig.build.json; cp -r task.json icon.png node_modules ../dist"
+    "test": "jest",
+    "testdev": "jest --watch",
+    "coverage": "jest --coverage",
+    "build": "tsc -p tsconfig.build.json",
+    "configure": "cp -r task.json icon.png ../dist/task",
+    "package": "ncc build index.ts -o ../dist/task && npm run configure"
   },
   "keywords": [],
   "author": "Henry Mosquera",
   "license": "ISC",
   "dependencies": {
-    "@types/node": "^26.6.6",
     "azure-pipelines-task-lib": "^5.282.0",
-    "node-fetch": "^3.3.2"
+    "undici": "^6.29.1"
   },
   "devDependencies": {
-    "@types/mocha": "^10.0.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^26.6.6",
-    "@types/node-fetch": "^2.6.3",
     "@types/q": "^1.5.8",
-    "sync-request": "^6.1.0",
-    "typescript": "^7.0.2"
+    "@vercel/ncc": "^0.45.0",
+    "jest-fetch-mock": "^4.2.0",
+    "ts-jest": "^29.4.15",
+    "typescript": "^6.0.3"
   },
   "description": ""
 }

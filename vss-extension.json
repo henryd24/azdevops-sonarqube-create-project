@@ -1,20 +1,18 @@
 {
     "manifestVersion": 1,
     "id": "sonarqube-create-project",
-    "name": "sonarqube create project",
-    "version": "1.0.7",
+    "name": "SonarQube create project",
     "publisher": "hendamm",
     "public": false,
     "repository": {
         "type": "git",
         "uri": "https://github.com/henryd24/azdevops-sonarqube-create-project"
     },
-    
     "targets": [
         {
             "id": "Microsoft.VisualStudio.Services.Cloud"
         }
-    ],    
+    ],
     "description": "Extension to verify the existence of projects, create them and set up quality gates.",
     "categories": [
         "Azure Pipelines"
@@ -37,7 +35,7 @@
         "vso.release"
     ],
     "icons": {
-        "default": "images/icon.png"        
+        "default": "images/icon.png"
     },
     "files": [
         {
@@ -52,7 +50,7 @@
                 "ms.vss-distributed-task.tasks"
             ],
             "properties": {
-                "name": "dist"
+                "name": "dist/task"
             }
         }
     ]
