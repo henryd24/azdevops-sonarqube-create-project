@@ -15,8 +15,8 @@
   "author": "Henry Mosquera",
   "license": "ISC",
   "dependencies": {
-    "azure-pipelines-task-lib": "^5.283.2",
-    "undici": "^8.12.4"
+    "azure-pipelines-task-lib": "^5.283.3",
+    "undici": "^8.13.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.13",
